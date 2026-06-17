@@ -31,6 +31,23 @@ docker run -d \
   -e SECRET_KEY=your-long-random-key \
   -v racklist-data:/data \
   ghcr.io/alfiosalanitri/flask-rack-list:latest
+
+# Run with Docker compose
+services:
+  app:
+    image: ghcr.io/alfiosalanitri/flask-rack-list:latest
+    ports:
+      - "7002:5000"
+    env_file:
+      - .env
+    volumes:
+      # SQLite database persisted across container restarts
+      - racklist-data:/data
+    restart: always
+
+volumes:
+  racklist-data:
+
 ```
 
 Then open **http://localhost:7002**
