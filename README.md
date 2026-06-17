@@ -1,6 +1,6 @@
 # rack·list — Server Inventory
 
-A lightweight Flask + Tailwind app to catalogue your servers and see at a glance what each one does.
+Self-hosted server inventory built with Flask and Tailwind. Track name, IP, OS, client, role, provider, and more. Includes full-text search, status filters (online/maintenance/offline/decommissioned), an admin panel, and dark/light theme. Runs as a Docker container with persistent SQLite storage.
 
 **Fields per server:** name, IP address, operating system, client, role, location, provider, SSH port, description, and notes.
 
