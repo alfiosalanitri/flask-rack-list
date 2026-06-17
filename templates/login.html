@@ -1,0 +1,31 @@
+{# rack·list — Server Inventory | Maintainer: Alfio Salanitri <https://www.alfiosalanitri.it> | License: MIT #}
+{% extends "base.html" %}
+{% block title %}Login — rack·list{% endblock %}
+
+{% block content %}
+<section class="max-w-sm mx-auto mt-6 sm:mt-12">
+  <div class="surface rounded-2xl p-7">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="led led-online"></span>
+      <p class="font-mono text-xs muted uppercase tracking-wider">Restricted area</p>
+    </div>
+    <h1 class="wordmark text-2xl font-bold mb-1">Login</h1>
+    <p class="muted text-sm mb-6">Sign in to add, edit and delete servers.</p>
+
+    <form method="post" class="space-y-4">
+      <div>
+        <label class="label" for="username">Username</label>
+        <input class="field" id="username" name="username" autocomplete="username" autofocus required>
+      </div>
+      <div>
+        <label class="label" for="password">Password</label>
+        <input class="field" id="password" name="password" type="password" autocomplete="current-password" required>
+      </div>
+      <button class="btn btn-accent w-full justify-center" type="submit">Sign in</button>
+    </form>
+  </div>
+  <p class="muted text-xs text-center mt-4">
+    Credentials set via <span class="font-mono">ADMIN_USERNAME</span> / <span class="font-mono">ADMIN_PASSWORD</span>.
+  </p>
+</section>
+{% endblock %}

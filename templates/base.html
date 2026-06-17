@@ -1,0 +1,217 @@
+{# rack·list — Server Inventory | Maintainer: Alfio Salanitri <https://www.alfiosalanitri.it> | License: MIT #}
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Inventario Server{% endblock %}</title>
+
+  <!-- Imposta il tema prima del paint per evitare il flash -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t === 'light') document.documentElement.classList.remove('dark');
+        else document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --bg-grid: #e9edf2;
+      --surface: #ffffff;
+      --surface-2: #f0f2f6;
+      --border: #dde2ea;
+      --text: #161b24;
+      --muted: #5a6473;
+      --accent: #0c8f86;
+      --accent-soft: #d3f0ed;
+      --on-accent: #ffffff;
+      --st-online: #1a9c4f;
+      --st-maintenance: #b9791a;
+      --st-offline: #d23b3b;
+      --st-decommissioned: #8b93a3;
+    }
+    html.dark {
+      --bg: #0b0e13;
+      --bg-grid: #11151d;
+      --surface: #141a24;
+      --surface-2: #1b2330;
+      --border: #283142;
+      --text: #e7eaf0;
+      --muted: #8b93a3;
+      --accent: #4fd6c9;
+      --accent-soft: #123630;
+      --on-accent: #05140f;
+      --st-online: #3fb950;
+      --st-maintenance: #d29922;
+      --st-offline: #f85149;
+      --st-decommissioned: #6e7888;
+    }
+
+    * { -webkit-tap-highlight-color: transparent; }
+    body {
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(var(--bg-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+      background-size: 44px 44px;
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+    .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+    .wordmark { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+
+    .surface { background: var(--surface); border: 1px solid var(--border); }
+    .surface-2 { background: var(--surface-2); }
+    .muted { color: var(--muted); }
+    .border-base { border-color: var(--border); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-weight: 600; font-size: .875rem; line-height: 1;
+      padding: .625rem .95rem; border-radius: .6rem;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text); cursor: pointer; transition: all .15s ease;
+      white-space: nowrap;
+    }
+    .btn:hover { background: var(--surface-2); }
+    .btn-accent {
+      background: var(--accent); color: var(--on-accent); border-color: transparent;
+    }
+    .btn-accent:hover { filter: brightness(1.08); background: var(--accent); }
+    .btn-danger { color: var(--st-offline); border-color: color-mix(in srgb, var(--st-offline) 35%, transparent); background: transparent; }
+    .btn-danger:hover { background: color-mix(in srgb, var(--st-offline) 12%, transparent); }
+
+    .field {
+      width: 100%; background: var(--surface-2); color: var(--text);
+      border: 1px solid var(--border); border-radius: .55rem;
+      padding: .6rem .75rem; font-size: .9rem; transition: border-color .15s, box-shadow .15s;
+    }
+    .field::placeholder { color: var(--muted); opacity: .7; }
+    .field:focus {
+      outline: none; border-color: var(--accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+    }
+    .label { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: .35rem; display: block; }
+
+    /* LED di stato - elemento firma */
+    .led { width: .55rem; height: .55rem; border-radius: 999px; flex: none; }
+    .led-online { background: var(--st-online); box-shadow: 0 0 0 3px color-mix(in srgb, var(--st-online) 22%, transparent); }
+    .led-maintenance { background: var(--st-maintenance); box-shadow: 0 0 0 3px color-mix(in srgb, var(--st-maintenance) 22%, transparent); }
+    .led-offline { background: var(--st-offline); box-shadow: 0 0 0 3px color-mix(in srgb, var(--st-offline) 22%, transparent); }
+    .led-decommissioned { background: var(--st-decommissioned); }
+
+    .rail { width: 4px; border-radius: 999px; flex: none; }
+    .rail-online { background: var(--st-online); }
+    .rail-maintenance { background: var(--st-maintenance); }
+    .rail-offline { background: var(--st-offline); }
+    .rail-decommissioned { background: var(--st-decommissioned); }
+
+    .chip {
+      display: inline-flex; align-items: center; gap: .4rem;
+      font-size: .72rem; font-weight: 600; padding: .25rem .55rem;
+      border-radius: 999px; border: 1px solid var(--border); color: var(--muted);
+    }
+
+    .flash {
+      border-radius: .6rem; padding: .7rem 1rem; font-size: .875rem; font-weight: 500;
+      border: 1px solid var(--border);
+    }
+    .flash-success { background: color-mix(in srgb, var(--st-online) 12%, var(--surface)); border-color: color-mix(in srgb, var(--st-online) 40%, transparent); }
+    .flash-error { background: color-mix(in srgb, var(--st-offline) 12%, var(--surface)); border-color: color-mix(in srgb, var(--st-offline) 40%, transparent); }
+
+    a.link-accent { color: var(--accent); }
+
+    /* Expandable details in server cards */
+    details.card-details summary { list-style: none; cursor: pointer; user-select: none; }
+    details.card-details summary::-webkit-details-marker { display: none; }
+    details.card-details summary {
+      font-size: .72rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--muted);
+      display: flex; align-items: center; gap: .35rem;
+    }
+    details.card-details summary .chevron { transition: transform .2s ease; flex-shrink: 0; }
+    details.card-details[open] summary .chevron { transform: rotate(180deg); }
+    details.card-details .desc-preview {
+      flex: 1; min-width: 0;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-size: .875rem; font-weight: 400;
+      text-transform: none; letter-spacing: normal;
+    }
+    details.card-details .desc-open-label { display: none; }
+    details.card-details[open] .desc-preview { display: none; }
+    details.card-details[open] .desc-open-label { display: block; }
+    details.card-details .detail-body {
+      margin-top: .45rem; font-size: .875rem; color: var(--muted);
+      white-space: pre-line; line-height: 1.55;
+    }
+
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <header class="sticky top-0 z-30 backdrop-blur" style="background: color-mix(in srgb, var(--bg) 82%, transparent); border-bottom: 1px solid var(--border);">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <a href="{{ url_for('index') }}" class="flex items-center gap-2.5 group">
+        <span class="grid place-items-center w-8 h-8 rounded-lg font-mono text-sm font-bold"
+              style="background: var(--accent); color: var(--on-accent);">//</span>
+        <span class="wordmark text-lg font-bold">rack<span style="color: var(--accent);">·</span>list</span>
+      </a>
+
+      <div class="flex items-center gap-2">
+        <button id="themeToggle" class="btn" aria-label="Cambia tema" title="Cambia tema">
+          <svg class="block dark:hidden w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <svg class="hidden dark:block w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+        {% if logged_in %}
+          <a href="{{ url_for('admin') }}" class="btn">Admin</a>
+          <a href="{{ url_for('logout') }}" class="btn">Esci</a>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="btn btn-accent">Accedi</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="space-y-2 mb-6">
+          {% for category, message in messages %}
+            <div class="flash flash-{{ 'error' if category == 'error' else 'success' }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="max-w-6xl mx-auto px-4 sm:px-6 py-8 text-sm muted">
+    rack·list — internal server inventory · {{ current_year }} ·
+    <a href="https://www.alfiosalanitri.it" class="link-accent" target="_blank" rel="noopener noreferrer">alfiosalanitri.it</a>
+  </footer>
+
+  <script>
+    document.getElementById('themeToggle').addEventListener('click', function () {
+      var root = document.documentElement;
+      var isDark = root.classList.toggle('dark');
+      try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch (e) {}
+    });
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,40 @@
+# Version control
+.git/
+.gitignore
+
+# Docker files (not needed inside the image)
+.dockerignore
+docker-compose.yml
+
+# Documentation
+README.md
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables
+.env
+.env.*
+
+# Local database files
+*.db
+*.sqlite3
+instance/
+data/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

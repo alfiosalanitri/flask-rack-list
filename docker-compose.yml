@@ -1,0 +1,19 @@
+services:
+  app:
+    build: .
+    container_name: racklist
+    ports:
+      - "7002:5000"
+    environment:
+      # Admin credentials — override in .env (copy from .env.example)
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-changeme}
+      # Secret key used to sign session cookies — set a long random string
+      - SECRET_KEY=${SECRET_KEY:-change-this-key-before-production}
+    volumes:
+      # SQLite database persisted across container restarts
+      - racklist-data:/data
+    restart: unless-stopped
+
+volumes:
+  racklist-data:

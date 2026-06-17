@@ -1,0 +1,68 @@
+{# rack·list — Server Inventory | Maintainer: Alfio Salanitri <https://www.alfiosalanitri.it> | License: MIT #}
+{% extends "base.html" %}
+{% block title %}Management — rack·list{% endblock %}
+
+{% block content %}
+<section class="flex flex-wrap items-end justify-between gap-4 mb-6">
+  <div>
+    <p class="font-mono text-xs muted tracking-wider uppercase mb-1">Admin area</p>
+    <h1 class="wordmark text-3xl font-bold">Server management</h1>
+    <p class="muted mt-1 text-sm">{{ servers|length }} server{{ 's' if servers|length != 1 }} in inventory.</p>
+  </div>
+  <a href="{{ url_for('server_new') }}" class="btn btn-accent">
+    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+    Add server
+  </a>
+</section>
+
+{% if servers %}
+<div class="surface rounded-xl overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="text-left" style="background: var(--surface-2);">
+          <th class="px-4 py-3 font-semibold">Server</th>
+          <th class="px-4 py-3 font-semibold">IP</th>
+          <th class="px-4 py-3 font-semibold">Client</th>
+          <th class="px-4 py-3 font-semibold">Operating system</th>
+          <th class="px-4 py-3 font-semibold">Status</th>
+          <th class="px-4 py-3 font-semibold text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in servers %}
+        <tr style="border-top: 1px solid var(--border);">
+          <td class="px-4 py-3">
+            <div class="font-medium">{{ s.name }}</div>
+            {% if s.role or s.location %}
+              <div class="muted text-xs">{{ s.role }}{% if s.role and s.location %} · {% endif %}{{ s.location }}</div>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3 font-mono" style="color: var(--accent);">{{ s.ip_address }}</td>
+          <td class="px-4 py-3">{{ s.client or '—' }}</td>
+          <td class="px-4 py-3 font-mono text-xs">{{ s.os_version or '—' }}</td>
+          <td class="px-4 py-3">
+            <span class="chip"><span class="led led-{{ s.status }}"></span>{{ s.status_label }}</span>
+          </td>
+          <td class="px-4 py-3">
+            <div class="flex gap-2 justify-end">
+              <a href="{{ url_for('server_edit', server_id=s.id) }}" class="btn">Edit</a>
+              <form method="post" action="{{ url_for('server_delete', server_id=s.id) }}"
+                    onsubmit="return confirm('Delete ' + {{ s.name | tojson }} + '? This cannot be undone.');">
+                <button type="submit" class="btn btn-danger">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="surface rounded-xl p-12 text-center">
+  <p class="muted mb-4">No servers yet. Start by adding one.</p>
+  <a href="{{ url_for('server_new') }}" class="btn btn-accent">Add server</a>
+</div>
+{% endif %}
+{% endblock %}
