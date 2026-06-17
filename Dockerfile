@@ -17,4 +17,4 @@ VOLUME ["/data"]
 EXPOSE 5000
 
 # In locale: gunicorn con 2 worker. app:app = modulo app.py, oggetto Flask "app"
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--preload", "app:app"]
