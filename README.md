@@ -15,6 +15,13 @@ A lightweight Flask + Tailwind app to catalogue your servers and see at a glance
 
 ---
 
+## Screenshots
+![Dark-themed server inventory dashboard displaying three server cards: ant (offline, Debian 10, Acme client), crocodile (maintenance, Ubuntu 24 LTS, Dr. X client), and drake-unicorn (online, Debian 13, Drake Ltd client). Top navigation shows total of 3 servers with status breakdown: 1 online, 1 maintenance, 1 offline, 0 decommissioned. Search bar available for filtering by name, IP, client, OS, or role. Each card shows server details including IP address, client, operating system, role, location, provider, and SSH port. Admin controls and theme toggle visible in header. Professional network management interface with cyan accent colors on dark background.](screenshots/Screenshot-1.png)
+
+<img src="screenshots/Screenshot-2.png" width="32%" alt="Screenshot 2" /> <img src="screenshots/Screenshot-3.png" width="32%" alt="Screenshot 3" /> <img src="screenshots/Screenshot-4.png" width="32%" alt="Screenshot 4" />
+
+---
+
 ## Quick start — pre-built image
 
 Every push to `main` publishes a Docker image to GitHub Container Registry.

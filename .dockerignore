@@ -6,6 +6,9 @@
 .dockerignore
 docker-compose.yml
 
+# Screenshots
+screenshots/
+
 # Documentation
 README.md
 
